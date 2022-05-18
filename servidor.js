@@ -7,6 +7,9 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
 const advancedOptions = { useNewUrlParser: true, useUnifiedTopology: true }
+const passport = require('passport')
+require('./config/passport.js')
+require('./dbConexion/MongoDB.js')
 
 
 const productosRouter = require ('./routes/productos.routes.js')
@@ -32,22 +35,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 //-------------------------------------
 //session
 app.use(session({
-    store: MongoStore.create({ 
-        //En Atlas connect App :  Make sure to change the node version to 2.2.12:
-        mongoUrl: 'mongodb://coderhouse:coderhouse@cluster0-shard-00-00.1xnky.mongodb.net:27017,cluster0-shard-00-01.1xnky.mongodb.net:27017,cluster0-shard-00-02.1xnky.mongodb.net:27017/sesiones?ssl=true&replicaSet=atlas-11uryb-shard-0&authSource=admin&retryWrites=true&w=majority',        
-        mongoOptions: advancedOptions
-    }),
-    /* ----------------------------------------------------- */
+    // store: MongoStore.create({ 
+    //     //En Atlas connect App :  Make sure to change the node version to 2.2.12:
+    //     mongoUrl: 'mongodb://coderhouse:coderhouse@cluster0-shard-00-00.1xnky.mongodb.net:27017,cluster0-shard-00-01.1xnky.mongodb.net:27017,cluster0-shard-00-02.1xnky.mongodb.net:27017/sesiones?ssl=true&replicaSet=atlas-11uryb-shard-0&authSource=admin&retryWrites=true&w=majority',        
+    //     mongoOptions: advancedOptions
+    // }),
+    // /* ----------------------------------------------------- */
 
     secret: 'prueba',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 60000
+        maxAge: (10 * 60 * 1000)
     }
 }))
 
 
+//-------------------------------------
+//-------------------------------------
+//Passport
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 //-------------------------------------
 //-------------------------------------
@@ -56,8 +65,8 @@ app.use(session({
 app.use('/api/productos-test', productosRouter);
 app.use('/login', loginRouter);
 app.use('/', (req,res) => {
-    if (req.session.user) {
-        res.send(io.sockets.emit("bienvenido", req.session.user))
+    if (req.isAuthenticated()) {
+        res.send(io.sockets.emit("bienvenido", req.user.email))
     }
 })
 

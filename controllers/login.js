@@ -1,18 +1,15 @@
-const login = (req,res) => {
-    const { nombre } = req.body
-    req.session.user = nombre
-    const user = (req.session.user).toUpperCase()
-    res.send(req.app.io.sockets.emit("bienvenido", user))
-    // res.redirect('/')
-}
+const passport = require('passport')
+const Strategy = require ('passport-local').Strategy
+
+const login = passport.authenticate('login')
+
+const singUp = passport.authenticate('singUp')
 
 const logout= (req,res) => {
-    const user = (req.session.user).toUpperCase()
-    req.session.destroy(err => {
-        if(!err) res.send(req.app.io.sockets.emit("logout", user))
-        else res.send({status: 'Logout ERROR', body: err})
-    })
-}
+    const user = req.user
+    req.logout()
+    res.send(req.app.io.sockets.emit("logout", user.email))
+} 
 
 
-module.exports = { login,logout }
+module.exports = { logout, singUp, login}

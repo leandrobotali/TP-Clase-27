@@ -20,21 +20,56 @@ document.querySelector("#formAgregarProduco").addEventListener("submit",async (e
 
 document.querySelector("#loginForm").addEventListener("submit",async (e) =>{
     e.preventDefault();
-    let nombre = document.querySelector("#inputNombre").value
+    let email = document.querySelector("#inputEmail").value
+
+    let password = document.querySelector("#inputPassword").value
     
-    if (nombre != ""){
+    if (email != "" && password != ""){
         await fetch("/login",{
             method: "post",
             headers:{
                 'content-Type' : 'application/json'
             },
             body: JSON.stringify({
-                nombre: nombre
+                email: email,
+                password: password
             })
         })
+    } else {
+        const mensaje = "Debe completar los campos email y password"
+        mostrarError(mensaje)
     }
     
 })
+
+document.querySelector("#buttonSingUp").addEventListener("click", async function(){
+    await mostrarSingUp()
+    document.querySelector("#singUpForm").addEventListener("submit",async (e) =>{
+        e.preventDefault();
+        let email = document.querySelector("#inputEmail").value
+
+        let password = document.querySelector("#inputPassword").value
+        
+        if (email != "" && password != ""){
+            await fetch("/login/singUp",{
+                method: "post",
+                headers:{
+                    'content-Type' : 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+        }else {
+            const mensaje = "Debe completar los campos"
+            mostrarError(mensaje)
+        }    
+    })
+    document.querySelector("#buttonSingIn").addEventListener("click", async function(){
+        window.location.href = URLinicial
+    })
+});
 
 
 document.querySelector("#formMensajes").addEventListener("submit", e=> {
@@ -139,6 +174,46 @@ socket.on("logout", async(nombre) => {
 
 })
 
+socket.on("redirectSingUp", async(nombre) => {
+    document.querySelector("#buttonSingUp").addEventListener("click", async function(){
+        await mostrarSingUp()
+        document.querySelector("#singUpForm").addEventListener("submit",async (e) =>{
+            e.preventDefault();
+            let email = document.querySelector("#inputEmail").value
+    
+            let password = document.querySelector("#inputPassword").value
+            
+            if (email != "" && password != ""){
+                await fetch("/login/singUp",{
+                    method: "post",
+                    headers:{
+                        'content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                })
+            }else {
+                const mensaje = "Debe completar los campos"
+                mostrarError(mensaje)
+            }
+            
+        })
+    });
+})
+
+socket.on("error", async(mensaje) => {
+    await mostrarError(mensaje)
+})
+
+socket.on("redirect", async(nombre) => {
+    setTimeout(()=>{
+        window.location.href = URLinicial
+    }, 2000);
+
+})
+
 
 async function mostrarProductos (data) {
     const fetchTemplateHBS = await fetch("../views/list_products.hbs");
@@ -162,4 +237,20 @@ async function mostrarHastaLuego (nombre) {
     const template = Handlebars.compile(templateHBS);
     const html = template({nombre: nombre});
     document.querySelector("#bienvenido").innerHTML = html
+}
+
+async function mostrarSingUp () {
+    const fetchTemplateHBS = await fetch("../views/singUp.hbs");
+    const templateHBS = await fetchTemplateHBS.text();
+    const template = Handlebars.compile(templateHBS);
+    const html = template();
+    document.querySelector("#bienvenido").innerHTML = html
+}
+
+async function mostrarError (mensaje) {
+    const fetchTemplateHBS = await fetch("../views/error.hbs");
+    const templateHBS = await fetchTemplateHBS.text();
+    const template = Handlebars.compile(templateHBS);
+    const html = template({mensaje: mensaje});
+    document.querySelector("#error").innerHTML = html
 }
