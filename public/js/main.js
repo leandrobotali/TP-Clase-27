@@ -74,14 +74,13 @@ document.querySelector("#buttonSingUp").addEventListener("click", async function
 
 document.querySelector("#formMensajes").addEventListener("submit", e=> {
     e.preventDefault();
-    console.log('123');
     let fyh = new Date();
-
+    
     let fyhActual = fyh.getHours() + ':' + fyh.getMinutes() + ':' + fyh.getSeconds();
-
+    
     socket.emit("new_message", {
         author:{
-            email: document.querySelector("input[name=email]").value,
+            email: document.querySelector("input[name=emailMessage]").value,
             nombre: document.querySelector("input[name=nombre]").value,
             apellido: document.querySelector("input[name=apellido]").value,
             edad: document.querySelector("input[name=edad]").value,

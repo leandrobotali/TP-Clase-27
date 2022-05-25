@@ -24,6 +24,7 @@ const createMessage = async (data)=>{
         }
         const idObj = idMasAlto + 1
         const {author, message} = data
+        console.log(author.email);
         await query.add({
             id: idObj,
             author,
