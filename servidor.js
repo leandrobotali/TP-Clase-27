@@ -1,6 +1,8 @@
 const express = require('express');
 const { Server: HttpServer } = require('http');
 const { Server: IOServer } = require('socket.io');
+const parseArgs = require ('minimist')
+require('dotenv').config()
 const path = require('path');
 const morgan = require('morgan')
 const cookieParser = require('cookie-parser')
@@ -14,12 +16,16 @@ require('./dbConexion/MongoDB.js')
 
 const productosRouter = require ('./routes/productos.routes.js')
 const loginRouter = require('./routes/login.routes.js')
+const infoRouter = require('./routes/info.routes.js')
+const randomRouter = require('./routes/random.routes.js')
 const {getAllMessage,createMessage,nomalizarData} = require('./controllers/mensajes')
 
 // const util = require('util')
 // function print(objeto) {
 //     console.log(util.inspect(objeto,false,12,true))
 // }
+
+const args = parseArgs(process.argv.slice(2))
 
 const app = express();
 const httpServer = new HttpServer(app);
@@ -64,6 +70,8 @@ app.use(passport.session())
 
 app.use('/api/productos-test', productosRouter);
 app.use('/login', loginRouter);
+app.use('/info', infoRouter);
+app.use('/api/randoms', randomRouter);
 app.use('/', (req,res) => {
     if (req.isAuthenticated()) {
         res.send(io.sockets.emit("bienvenido", req.user.email))
@@ -101,6 +109,10 @@ app.use((req, res) => {
 //-------------------------------------
 //-------------------------------------
 
-const server = httpServer.listen(8080,() => {
+//pasar el puerto como argumento en la ejecucion con la etiquete p. ejemplo:
+//node servidor.js -p 3000
+const PORT = args.p || 8080
+
+const server = httpServer.listen(PORT,() => {
     console.log(`puerto ${server.address().port}`);
 })

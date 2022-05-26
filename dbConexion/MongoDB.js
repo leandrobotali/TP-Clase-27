@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://coderhouse:coderhouse@cluster0.1xnky.mongodb.net/usuarios?retryWrites=true&w=majority')
+const { MONGODB_USER, MONGODB_PASS, MONGODB_HOST, MONGODB_DATABASE } = process.env;
+
+const MONGODB_URI = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASS}@${MONGODB_HOST}/${MONGODB_DATABASE}`
+
+mongoose.connect(MONGODB_URI)
 .then(db => console.log('database is connected'))
 .catch(err => {
     console.error('connection error')
